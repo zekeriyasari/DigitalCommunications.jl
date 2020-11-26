@@ -7,8 +7,9 @@ using DocStringExtensions
 
 export 
     Generator, 
-    GrayCoding, 
-    ASK, PSK, QAM, FSK, Modulator, scheme, alphabet, symbolsize, mapstream, modulate, 
+    AbstractCoding, GrayCoding, 
+    AbstractScheme, ASK, PSK, QAM, FSK, 
+    Modulator, scheme, alphabet, symbolsize, mapstream, modulate, 
     AWGNChannel, ebno
 
 ##### Stream Generator 
