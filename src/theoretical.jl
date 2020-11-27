@@ -1,9 +1,5 @@
 # This file includes the theoretical functions of the ber performance cureves. 
 
-using Plots 
-using QuadGK 
-using SpecialFunctions
-
 export 
     Q, ebno,
     prob_symbol_error_vs_snr_per_bit_ask, 
