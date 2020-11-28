@@ -337,11 +337,11 @@ function (detector::MLDetector)(r)
     codewords = map(r) do rm 
         imap[
             argmax(
-                real.(map(s -> dot(rm, s), signals)) 
-                # real.(map(s -> dot(rm, s), signals)) - 1  / 2 * norm.(signals).^2
+                real.(map(s -> dot(rm, s), signals)) - 1 / 2 * norm.(signals).^2
                 )
             ]
     end
-    vcat(codewords...)
+    codewords
+    # vcat(codewords...)
 end
 
