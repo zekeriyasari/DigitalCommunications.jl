@@ -6,11 +6,11 @@ using DigitalCommunications
 γb = 6
 k = 2
 M = 2^k 
-bertheo = berask(ebno(γb), M)
+bertheo = berask(dbtosnr(γb), M)
 
 nsymbols = Int(1e6)
 nbits = k * nsymbols
-σ = √(1 / (2 * k * ebno(γb)))
+σ = √(1 / (2 * k * dbtosnr(γb)))
 
 # Construct communication system blocks 
 gen = Generator(nbits)

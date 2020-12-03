@@ -29,8 +29,8 @@ nbits = k * nsymbols
 γb = -4 : 1 : 10
 
 # Run simulations 
-simtheoretical =  berask.(ebno.(γb), M)
-simmary = runsim_mary.(ebno.(γb), M, nbits)
+simtheoretical =  berask.(dbtosnr.(γb), M)
+simmary = runsim_mary.(dbtosnr.(γb), M, nbits)
 
 # Plot results 
 plotlyjs()
