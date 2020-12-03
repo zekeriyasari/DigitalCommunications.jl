@@ -315,7 +315,6 @@ deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
 git-tree-sha1 = "ea112fc026812bfb7e362e8732ca207dcf8d4281"
 uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
 version = "0.8.5"
-
 [[LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "df381151e871f41ee86cee4f5f6fd598b8a68826"
@@ -870,6 +869,30 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_xcb_util_jll"]
 git-tree-sha1 = "e78d10aab01a4a154142c5006ed44fd9e8e31b67"
 uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
 version = "0.4.1+1"
+
+[[Xorg_xcb_util_jll]]
+deps = ["Libdl", "Pkg", "Xorg_libxcb_jll"]
+git-tree-sha1 = "6b47a94261a67078fe3d3922363bd9fd83b6eb1d"
+uuid = "2def613f-5ad1-5310-b15b-b15d46f528f5"
+version = "0.4.0+0"
+
+[[Xorg_xcb_util_keysyms_jll]]
+deps = ["Libdl", "Pkg", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "40771f688e17baa121136b649e631e1868a6678e"
+uuid = "975044d2-76e6-5fbe-bf08-97ce7c6574c7"
+version = "0.4.0+0"
+
+[[Xorg_xcb_util_renderutil_jll]]
+deps = ["Libdl", "Pkg", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "72c9b59211a97f763a9ca82351d37ebc04a6858a"
+uuid = "0d47668e-0667-5a69-a72c-f761630bfb7e"
+version = "0.3.9+0"
+
+[[Xorg_xcb_util_wm_jll]]
+deps = ["Libdl", "Pkg", "Xorg_xcb_util_jll"]
+git-tree-sha1 = "6ed52e9bfb2421f01ee62e1a5a30eba5f3f29c74"
+uuid = "c22f9ab0-d5fe-5066-847c-f4bb1cd4e361"
+version = "0.4.1+0"
 
 [[Xorg_xkbcomp_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "Xorg_libxkbfile_jll"]
