@@ -342,6 +342,5 @@ function (detector::MLDetector)(r)
             ]
     end
     codewords
-    # vcat(codewords...)
 end
 

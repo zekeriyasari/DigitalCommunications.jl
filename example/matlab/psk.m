@@ -6,7 +6,7 @@ close all
 
 k = 3;
 M = 2^k; 
-nsymbols = 10000000;
+nsymbols = 1e7;
 nbits = nsymbols * k;
 EbNo = -4 : 10;
 snr = EbNo + 10 * log10(k);
