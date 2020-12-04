@@ -131,7 +131,7 @@ struct PSK <: AbstractScheme end
 
 Frequency Shift Keying. The mapping rule is 
 ```math 
-    s_m = A cos(w_c t + w_m t) \\quad m = 1, \\lots, M
+    s_m = A cos(w_c t + w_m t) \\quad m = 1, \\ldots, M
 ```
 where ``w_m = m \\Delta f``
 """
