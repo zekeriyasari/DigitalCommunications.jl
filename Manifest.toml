@@ -99,12 +99,6 @@ uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
 deps = ["Mmap"]
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
-[[DigitalCommunications]]
-deps = ["DocStringExtensions", "DocumenterTools", "LinearAlgebra", "Plots", "QuadGK", "Revise", "SpecialFunctions"]
-path = "/home/sari/.julia/dev/DigitalCommunications"
-uuid = "667095cb-19c7-43e8-aa07-f70a6bce38fc"
-version = "0.1.0"
-
 [[Distributed]]
 deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
@@ -455,9 +449,9 @@ version = "8.42.0+4"
 
 [[Parsers]]
 deps = ["Dates"]
-git-tree-sha1 = "b417be52e8be24e916e34b3d70ec2da7bdf56a68"
+git-tree-sha1 = "9d738ba28afdbd877397fb24d48440244590e039"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "1.0.12"
+version = "1.0.13"
 
 [[Pixman_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
