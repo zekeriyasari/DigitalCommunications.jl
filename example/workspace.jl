@@ -1,17 +1,33 @@
-using DigitalCommunications 
-using Plots; plotlyjs()
+# This file includes the MonteCarlo simulation of PSK modulation scheme and compares 
+# the numerical results with the theoretical results. 
 
-# Plot theoreitcal ber simulation. 
-γb = collect(0 : 2 : 12) 
-pb = berpsk.(γb, 2)
-plot(γb, pb, yscale=:log10, marker=(:circle, 2), label="theoretical")
+using DigitalCommunications 
+using Plots 
+
+# Simulation parameters 
+k = 3 
+M = 2^k 
+nsymbols = Int(1e6) 
+nbits = k * nsymbols
+γb = collect(0 : 10)        # Snr per bit 
+γs = γb .+ 10 * log10(k)    # Snr ber symbol  
+
+# Communcation system components  
+gen = Generator(nbits) 
+modulator = Modulator(PSK(), M)
+channel = AWGNChannel(1) 
+detector = MLDetector(signalset(modulator))
 
 # Monte Carlo simulation 
-k = 1 
-M = 2^k
-nbits = 10 
+message = mapstream(modulator, gen.bits)  # Message signal 
+symerr = zeros(length(γs))
+for i in 1 : length(symerr)
+    channel.snr = γs[i]  # Update channel snr
+    mbar = gen.bits |> modulator |> channel |> detector  # Extracted message signal 
+    symerr[i] = sum(mbar .!= message) / length(message)  # Symbol error rate 
+end
 
-# Blocks 
-gen = Generator(nbits) 
-modulator = Modulator(ASK(), 8)
-constellation(modulator)
+# Plots
+plt = plot(title="$M-PSK", xlabel="γb [dB]", ylabel="Pe") 
+plot!(γb, berpsk.(γs, M), marker=:circle, yscale=:log10, label="theoretical")
+plot!(γb, symerr, marker=:circle, yscale=:log10, label="montecarlo")

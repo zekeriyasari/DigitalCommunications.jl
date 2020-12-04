@@ -310,7 +310,7 @@ Additive white Gaussian noise channel.
 
     $TYPEDFIELDS
 """
-struct AWGNChannel 
+mutable struct AWGNChannel 
     "Channel SNR(Signal-to-Noise ratio)"
     snr::Float64 
 end 
@@ -321,7 +321,7 @@ function (channel::AWGNChannel)(s)
     N = length(s[1])
     K = length(s)
     ϵx = sum(norm.(s).^2) / length(s)  # Message signal energy
-    σ = √(ϵx / dbtosnr(channel.snr))
+    σ = √(ϵx / dbtosnr(channel.snr) / 2)
     n = σ * collect(eachrow(randn(K, N)))
     s + n 
 end
@@ -351,9 +351,12 @@ MLDetector(signals) = MLDetector(signals, GrayCoding(Int(log2(length(signals))))
 
 function (detector::MLDetector)(r)
     ss = detector.signals 
-    imap = invmap(detector.coding)
     map(r) do ri 
-        imap[argmax(map(s -> ri ⋅ s, ss) - 1 / 2 * norm.(ss).^2)]
+        argmax(map(s -> ri ⋅ s, ss) - 1 / 2 * norm.(ss).^2)
     end
+    # imap = invmap(detector.coding)
+    # map(r) do ri 
+    #     imap[argmax(map(s -> ri ⋅ s, ss) - 1 / 2 * norm.(ss).^2)]
+    # end
 end
 
