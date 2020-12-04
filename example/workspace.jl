@@ -1,27 +1,17 @@
-# This file includes the simulation of a PSK modulation 
+using DigitalCommunications 
+using Plots; plotlyjs()
 
-using Plots 
-using DigitalCommunications
+# Plot theoreitcal ber simulation. 
+γb = collect(0 : 2 : 12) 
+pb = berpsk.(γb, 2)
+plot(γb, pb, yscale=:log10, marker=(:circle, 2), label="theoretical")
 
-γb = 6
-k = 2
-M = 2^k 
-bertheo = berask(ebno(γb), M)
+# Monte Carlo simulation 
+k = 1 
+M = 2^k
+nbits = 10 
 
-nsymbols = Int(1e6)
-nbits = k * nsymbols
-σ = √(1 / (2 * k * ebno(γb)))
-
-# Construct communication system blocks 
-gen = Generator(nbits)
-modulator = Modulator(ASK(), M)
-channel = AWGNChannel(0, σ)
-detector = MLDetector(signalset(modulator))
-
-# Run communciation system 
-extsymbols = gen.bits |> modulator |> channel |> detector
-sentsymbols = collect(Iterators.partition(gen.bits, k))
-bersim = sum(extsymbols .!= sentsymbols) / length(sentsymbols) 
-@show bersim, bertheo
-@show log10(bersim), log10(bertheo)
-nothing
+# Blocks 
+gen = Generator(nbits) 
+modulator = Modulator(ASK(), 8)
+constellation(modulator)

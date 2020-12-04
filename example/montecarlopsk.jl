@@ -38,9 +38,9 @@ nbits = 1_000_000
 γb = -4 : 1 : 10
 
 # Run simulations 
-simtheoretical =  berpsk.(ebno.(γb), M) / k
-simbinary = runsim_binary.(ebno.(γb), M, nbits)
-simmary = runsim_mary.(ebno.(γb), M, nbits)
+simtheoretical =  berpsk.(dbtosnr.(γb), M) / k
+simbinary = runsim_binary.(dbtosnr.(γb), M, nbits)
+simmary = runsim_mary.(dbtosnr.(γb), M, nbits)
 
 # Plot results 
 plotlyjs()

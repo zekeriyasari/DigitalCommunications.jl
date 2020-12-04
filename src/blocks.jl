@@ -4,7 +4,7 @@ export
     Generator, 
     AbstractCoding, GrayCoding, invmap,
     AbstractScheme, ASK, PSK, QAM, FSK, 
-    Modulator, scheme, alphabet, symbolsize, mapstream, modulate, signalset,
+    Modulator, scheme, alphabet, symbolsize, mapstream, modulate, signalset, constellation,
     AWGNChannel,
     AbstractDetector, AbstractCoherentDetector, AbstractNonCoherentDetector, MAPDetector,  MLDetector
 
@@ -278,6 +278,26 @@ end
 modulate(modulator::Modulator{ASK, CT}, m) where CT = [2m - 1 - modulator.M]
 modulate(modulator::Modulator{PSK, CT}, m) where CT = (θ = 2π / modulator.M * (m - 1); [cos(θ), sin(θ)])
 
+"""
+    $SIGNATURES 
+
+Plots the constellation diagram of the `modulator`.
+"""
+function constellation(modulator::Modulator{ST, CT}) where {ST, CT} 
+    s = signalset(modulator) 
+    if ST <: ASK || ST <: PAM
+        ymax = 1
+        plt = scatter(vcat(s...), zeros(length(s)), ylims=(-ymax, ymax))
+        foreach(item -> annotate!(item[2][1],  0.1, item[1]), enumerate(s)) 
+    elseif ST <: PSK || ST <: QAM
+        ymax = maximum(norm.(s)) * 1.25
+        plt = scatter(getindex.(s, 1), getindex.(s, 2), marker=:circle, ylims=(-ymax, ymax))
+        foreach(item -> annotate!(item[2][1] * 0.9, item[2][2] * 0.9, item[1]), enumerate(s)) 
+    else 
+        error("Unknown modulation scheme. Expected `PAM, PSK, QAM, FSK`, got $ST instead.")
+    end
+    plt
+end
 
 #------------------------- AWGN Vector Channel ------------------------------------
 
@@ -291,10 +311,8 @@ Additive white Gaussian noise channel.
     $TYPEDFIELDS
 """
 struct AWGNChannel 
-    "Mean"
-    m::Float64 
-    "Standard deviation"
-    σ::Float64 
+    "Channel SNR(Signal-to-Noise ratio)"
+    snr::Float64 
 end 
 
 # Channel is callable. When called with the message signal, 
@@ -302,9 +320,9 @@ end
 function (channel::AWGNChannel)(s)
     N = length(s[1])
     K = length(s)
-    # NOTE: Since the AWGN channe is in baseband, the variance of noise in the baseband is 4 times that of noise in the 
-    # bandpass. So, we multiply 2 times channel standard deviation. 
-    n = 2 * channel.σ  * [randn(N) for i in 1 : K] 
+    ϵx = sum(norm.(s).^2) / length(s)  # Message signal energy
+    σ = √(ϵx / dbtosnr(channel.snr))
+    n = σ * collect(eachrow(randn(K, N)))
     s + n 
 end
 
@@ -332,15 +350,10 @@ end
 MLDetector(signals) = MLDetector(signals, GrayCoding(Int(log2(length(signals)))))
 
 function (detector::MLDetector)(r)
-    signals = detector.signals 
+    ss = detector.signals 
     imap = invmap(detector.coding)
-    codewords = map(r) do rm 
-        imap[
-            argmax(
-                real.(map(s -> dot(rm, s), signals)) - 1 / 2 * norm.(signals).^2
-                )
-            ]
+    map(r) do ri 
+        imap[argmax(map(s -> ri ⋅ s, ss) - 1 / 2 * norm.(ss).^2)]
     end
-    codewords
 end
 
