@@ -1,40 +1,33 @@
-# This file includes an example simulation of BPSK system using a threshold detector and 
-# using DigitalCommunications blocks. MonteCarlo runs are compared with theoretical values. 
+# This file includes the MonteCarlo simulation of ASK modulation scheme and compares 
+# the numerical results with the theoretical results. 
 
+using DigitalCommunications 
 using Plots 
-using DigitalCommunications
-
-# `runsim_mary` function employs DigitalCommunications blocks. 
-function runsim_mary(γb, M, nbits)
-    k = Int(log2(M))
-    σ = √(1 / (2 * k * γb))
-
-    # Construct communication system blocks 
-    gen = Generator(nbits)
-    modulator = Modulator(ASK(), M)
-    channel = AWGNChannel(0, σ)
-    detector = MLDetector(signalset(modulator))
-
-    # Run communciation system
-    extsymbols = gen.bits |> modulator |> channel |> detector
-    sentsymbols = collect(Iterators.partition(gen.bits, k))
-    sum(extsymbols .!= sentsymbols) / length(sentsymbols)
-end
 
 # Simulation parameters 
-k = 1
-M = 2^k
-nsymbols = Int(1e4)
+k = 3
+M = 2^k 
+nsymbols = Int(1e6) 
 nbits = k * nsymbols
-γb = -4 : 1 : 10
+γb = collect(0 : 10)        # Snr per bit 
+γs = γb .+ 10 * log10(k)    # Snr ber symbol  
 
-# Run simulations 
-simtheoretical =  berask.(dbtosnr.(γb), M)
-simmary = runsim_mary.(dbtosnr.(γb), M, nbits)
+# Communcation system components  
+gen = Generator(nbits) 
+modulator = Modulator(ASK(), M)
+channel = AWGNChannel(1) 
+detector = MLDetector(signalset(modulator))
 
-# Plot results 
-plotlyjs()
-scale = :log10
-ms = 2
-scatter(γb, simtheoretical, yscale=scale, ylims=(1e-3, 1e-0), markersize=ms, label="theoretical")
-scatter!(γb, simmary, yscale=scale, markersize=ms, label="mary")
+# Monte Carlo simulation 
+message = mapstream(modulator, gen.bits)  # Message signal 
+symerr = zeros(length(γs))
+for i in 1 : length(symerr)
+    channel.snr = γs[i]  # Update channel snr
+    mbar = gen.bits |> modulator |> channel |> detector  # Extracted message signal 
+    symerr[i] = sum(mbar .!= message) / length(message)  # Symbol error rate 
+end
+
+# Plots
+plt = plot(title="$M-ASK", xlabel="γb [dB]", ylabel="Pe") 
+plot!(γb, berask.(γb, M), marker=:circle, yscale=:log10, label="theoretical")
+plot!(γb, symerr, marker=:circle, yscale=:log10, label="montecarlo")
