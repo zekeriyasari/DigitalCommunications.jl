@@ -6,3 +6,4 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/zekeriyasari/DigitalCommunications.jl?svg=true)](https://ci.appveyor.com/project/zekeriyasari/DigitalCommunications-jl)
 [![Coverage](https://codecov.io/gh/zekeriyasari/DigitalCommunications.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/zekeriyasari/DigitalCommunications.jl)
 [![Coverage](https://coveralls.io/repos/github/zekeriyasari/DigitalCommunications.jl/badge.svg?branch=master)](https://coveralls.io/github/zekeriyasari/DigitalCommunications.jl?branch=master)
+![Documentation](https://github.com/zekeriyasari/DigitalCommunications.jl/workflows/Documentation/badge.svg)
