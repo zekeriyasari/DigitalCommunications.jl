@@ -1,3 +1,8 @@
 [deps]
 DigitalCommunications = "667095cb-19c7-43e8-aa07-f70a6bce38fc"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+DigitalCommunications = "0.1"
+Documenter = "0.25"
+julia = "1.4"
