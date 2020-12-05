@@ -15,7 +15,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 [compat]
 DocStringExtensions = "0.8"
 DocumenterTools = "0.1"
-Plots = "1.9"
+Plots = "1"
 QuadGK = "2.4"
 Revise = "3.1"
 SpecialFunctions = "v1.1"
