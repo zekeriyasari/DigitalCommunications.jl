@@ -3,8 +3,8 @@
 export 
     Generator, 
     AbstractCoding, GrayCoding, invmap,
-    AbstractScheme, ASK, PSK, QAM, FSK, 
-    Modulator, scheme, alphabet, symbolsize, mapstream, modulate, signalset, constellation,
+    AbstractScheme, ASK, PSK, QAM, FSK, PAM, 
+    Modulator, scheme, alphabet, symbolsize, stream_to_symbols, modulate, signalset, constellation,
     AWGNChannel,
     AbstractDetector, AbstractCoherentDetector, AbstractNonCoherentDetector, MAPDetector,  MLDetector
 
@@ -42,6 +42,8 @@ Gray coding.
 struct GrayCoding <: AbstractCoding 
     pairs::Dict
 end 
+
+show(io::IO, coding::GrayCoding) = print(io, "GrayCoding(M:$(length(coding.pairs)))")
 
 """
     GrayCoding(k)
@@ -93,15 +95,68 @@ Abstract type for modulation schemes such as PAM, ASK, PSK, FSK, QAM, etc.
 """
 abstract type AbstractScheme end
 
+
+for scheme in [:ASK, :PAM, :PSK, :QAM, :FSK]
+    @eval begin 
+        struct $(scheme){T} <: AbstractScheme 
+            "Scheme symbol size"
+            M::Int
+            "Symbol alphabet"
+            alphabet::T
+        end
+        $(scheme)(M::Int) = $(scheme)(M, getalphabet($scheme, M))
+    end
+end
+
+show(io::IO, scheme::T) where T <: AbstractScheme = print(io, "$(scheme.M)-$(T.name)")
+
+function getalphabet(scheme::Type{PAM}, M::Int)
+    [[2m - 1 - M] for m in 1 : M]
+    # collect(2 * (1 : M) .- 1 .- M)
+end 
+function getalphabet(scheme::Type{ASK}, M::Int)
+    [[2m - 1 - M] for m in 1 : M]
+    # collect(2 * (1 : M) .- 1 .- M)
+end 
+function getalphabet(scheme::Type{PSK}, M::Int) 
+    map(1 : M) do m 
+        θ = 2π / M *  (m - 1)
+        [cos(θ), sin(θ)]
+    end
+end
+function getalphabet(scheme::Type{QAM}, M::Int)
+    M = Int(sqrt(M))
+    vec([[i, j] for i in -(M - 1) : 2 : (M - 1), j in -(M - 1) : 2 : (M - 1)])
+end
+
+# TODO: Implement `getalphabet` method for FSK 
+function getalphabet(scheme::Type{FSK}, M::Int) end 
+
+"""
+    $SIGNATURES
+
+Returns the symbols size of `scheme`.
+
+# Example 
+```julia 
+julia> sch = PSK(4);
+
+julia> symbolsize(sch)
+2
+```
+"""
+symbolsize(scheme::AbstractScheme) = Int(log2(scheme.M))
+
+##### Scheme documentation. 
+
 """
     $TYPEDEF
-
 Pulse Amplitude Modulation. The mapping rule is 
 ```math 
     s_m = A_m p(t) \\quad m = 1, \\ldots, M
 ```
 """
-struct PAM <: AbstractScheme end 
+PAM
 
 """
     $TYPEDEF
@@ -112,7 +167,7 @@ Amplitude Shift Keying. The mapping rule is
 ```
 where ``A_m = 2m - 1 - M`` 
 """
-struct ASK <: AbstractScheme end 
+ASK
 
 """
     $TYPEDEF
@@ -123,7 +178,7 @@ Phase Shift Keying. The mapping rule is
 ```
 where ``\\theta_m = \\dfrac{2\\pi(m - 1)}{M}``.
 """
-struct PSK <: AbstractScheme end 
+PSK 
 
 """
     $TYPEDEF
@@ -135,10 +190,14 @@ Frequency Shift Keying. The mapping rule is
 ```
 where ``w_m = m \\Delta f``
 """
-struct FSK <: AbstractScheme end 
+FSK 
 
 """
     $TYPEDEF
+
+# Fields 
+
+    $TYPEDFIELDS
 
 Quadrature Amplitude Modulation. The mapping rule is 
 ```math 
@@ -146,7 +205,7 @@ Quadrature Amplitude Modulation. The mapping rule is
 ```
 where the amplitudes ``A_{mi}, A_{mq} \\in \\{ \\pm 1, \\pm 3, \\ldots, \\pm (M - 1) \\}`` 
 """
-struct QAM <: AbstractScheme end 
+QAM
 
 """
     $TYPEDEF
@@ -159,12 +218,12 @@ Baseband digital modulator.
 struct Modulator{ST<:AbstractScheme, CT<:AbstractCoding}
     "Modulation scheme"
     scheme::ST
-    "Constellation size"
-    M::Int 
     "Coding to map stream to code words"
     coding::CT
 end 
-Modulator(scheme::ST, M::Int) where {ST} = Modulator(scheme, M, GrayCoding(Int(log2(M))))
+Modulator(scheme) = Modulator(scheme, GrayCoding(symbolsize(scheme)))
+
+show(io::IO, modulator::Modulator)= print(io, "Modulator(scheme:$(modulator.scheme), coding:$(modulator.coding))")
 
 """ 
     $SIGNATURES
@@ -184,22 +243,24 @@ julia> signalset(modulator)
  [-1.8369701987210297e-16, -1.0]
 ```
 """
-signalset(modulator::Modulator) = 
-    map(level -> modulate(modulator, level), modulator.coding.pairs |> values |> collect |> sort)
+function signalset(modulator::Modulator) 
+    @warn "`signalset(modulator)` has been deprecated, use `alphabet(modulator)` instead."
+    alphabet(modulator)
+end
 
 """
     $SIGNATURES
 
 Returns scheme of the modulation `modulator`. 
 """
-scheme(modulator::Modulator{ST, CT}) where {ST, CT} = ST
+scheme(modulator::Modulator{ST, CT}) where {ST, CT} = modulator.scheme
 
 """
     $SIGNATURES
 
 Returns the symbols size of the modulator `modulator`.
 """
-symbolsize(modulator::Modulator) = Int(log2(modulator.M))
+symbolsize(modulator::Modulator) = symbolsize(modulator.scheme)
 
 """
     $SIGNATURES
@@ -208,18 +269,18 @@ Returns the alphabet of the modulator `modulator`.
 
 # Example
 ```julia 
-julia> modulator = Modulator(PSK(), 4)  # 4-PSK modulator 
-Modulator{PSK,GrayCoding}(PSK(), 4, GrayCoding(Dict([0, 1] => 2,[1, 1] => 3,[0, 0] => 1,[1, 0] => 4)))
+julia> modulator = Modulator(PSK(4))
+Modulator(scheme:4-PSK, coding:GrayCoding(M:4))
 
 julia> alphabet(modulator)
-Dict{Array{Int64,1},Int64} with 4 entries:
-  [0, 1] => 2
-  [1, 1] => 3
-  [0, 0] => 1
-  [1, 0] => 4
+4-element Array{Array{Float64,1},1}:
+ [1.0, 0.0]
+ [6.123233995736766e-17, 1.0]
+ [-1.0, 1.2246467991473532e-16]
+ [-1.8369701987210297e-16, -1.0]
 ```
 """
-alphabet(modulator::Modulator) = modulator.coding.pairs
+alphabet(modulator::Modulator) = modulator.scheme.alphabet
 
 
 """
@@ -245,7 +306,7 @@ julia> bits = rand(Bool, 10)
  0
  0
 
-julia> mapstream(modulator, bits)
+julia> stream_to_symbols(modulator, bits)
 5-element Array{Int64,1}:
  1
  2
@@ -254,29 +315,19 @@ julia> mapstream(modulator, bits)
  1
 ```
 """
-function mapstream(modulator::Modulator, stream) 
+function stream_to_symbols(modulator::Modulator, stream) 
     # Construct codewords
-    k = symbolsize(modulator)
-    codewords = collect(Iterators.partition(stream, k))
+    codewords = collect(Iterators.partition(stream, symbolsize(modulator)))
 
-    # Map codewords into levels 
+    # Map codewords into symbols 
     alph = modulator.coding.pairs
     map(codewords) do codeword 
         alph[codeword]
     end
 end 
 
-# Modulator is callable. When called with a bit stream, 
-# it modulates the bit stream into message symbols. 
-function (modulator::Modulator)(stream) 
-    levels = mapstream(modulator, stream)
-    map(levels) do m 
-        modulate(modulator, m)
-    end
-end
-
-modulate(modulator::Modulator{ASK, CT}, m) where CT = [2m - 1 - modulator.M]
-modulate(modulator::Modulator{PSK, CT}, m) where CT = (θ = 2π / modulator.M * (m - 1); [cos(θ), sin(θ)])
+# Modulation...
+(modulator::Modulator)(stream) = alphabet(modulator)[stream_to_symbols(modulator, stream)]
 
 """
     $SIGNATURES 
@@ -284,7 +335,7 @@ modulate(modulator::Modulator{PSK, CT}, m) where CT = (θ = 2π / modulator.M * 
 Plots the constellation diagram of the `modulator`.
 """
 function constellation(modulator::Modulator{ST, CT}) where {ST, CT} 
-    s = signalset(modulator) 
+    s = alphabet(modulator) 
     if ST <: ASK || ST <: PAM
         ymax = 1
         plt = scatter(vcat(s...), zeros(length(s)), ylims=(-ymax, ymax))
@@ -304,7 +355,7 @@ end
 """
     $TYPEDEF
 
-Additive white Gaussian noise channel. 
+Additive white Gaussian noise channel. `AWGNChannel` is defined by its `snr`. `snr = Eb / No` where `Eb` is the energy per bit and `No/2` is the power spectral density of the channel noise.  
 
 # Fields 
 
@@ -315,12 +366,13 @@ mutable struct AWGNChannel
     snr::Float64 
 end 
 
-# Channel is callable. When called with the message signal, 
-# it corrupts the message signals by adding noise. 
-function (channel::AWGNChannel)(s)
+function (channel::AWGNChannel)(s::AbstractVector{T}) where T <: Union{<:Real, AbstractVector{<:Real}}
     N = length(s[1])
     K = length(s)
     ϵx = sum(norm.(s).^2) / length(s)  # Message signal energy
+    # Note: The input `s` is a scalar (in case of PAM/ASK) or vector(in case of PSK, QAM, FSK) real signal,  
+    # the power spectral density of the noise is `No/2` and channel snr is defined as `snr = Es/No/2`
+    # where `Es` is the energy per symbol.  
     σ = √(ϵx / dbtosnr(channel.snr) / 2)
     n = σ * collect(eachrow(randn(K, N)))
     s + n 
@@ -329,22 +381,58 @@ end
 
 # ------------------------------------ Detector -------------------------------------------
 
+""" 
+    $TYPEDEF
+
+Abstract type of detectors.
+"""
 abstract type AbstractDetector end
+
+"""
+    $TYPEDEF
+
+Abstract type for cohorent detectors.
+""" 
 abstract type AbstractCoherentDetector <: AbstractDetector end
+
+"""
+    abstract type non-coherent detectors. 
+"""
 abstract type AbstractNonCoherentDetector <: AbstractDetector end
 
+"""
+    $TYPEDEF
+
+# Fields 
+
+    $TYPEDFIELDS
+"""
 struct MAPDetector{ST, CT<:AbstractCoding} <: AbstractCoherentDetector
+    "Basis signals of the detector"
     signals::ST
+    "A priori probabilities of the message symbols"
     probs::Vector{Float64}
+    "2 times the power spectral density of channel noise"
     N0::Float64
+    "Symbol coding"
     coding::CT
 end 
 MAPDetector(signals, probs, N0) = MAPDetector(signals, probs, N0, GrayCoding(length(signals)))
 
+# TODO: Implement `MAPDetector` call methods.
 function (detector::MAPDetector)(r) end 
 
+"""
+    $TYPEDEF
+
+# Fields
+
+    $TYPEDFIELDS
+"""
 struct MLDetector{ST, CT<:AbstractCoding} <: AbstractCoherentDetector
+    "Basis signals of the detector"
     signals::ST
+    "Symbol encoding"
     coding::CT
 end
 MLDetector(signals) = MLDetector(signals, GrayCoding(Int(log2(length(signals)))))
