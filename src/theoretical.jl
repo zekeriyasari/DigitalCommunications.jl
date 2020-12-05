@@ -76,7 +76,7 @@ end
 """
     $SIGNATURES
 
-Plots the probability of symbols error versus snr per bit for the signaling `scheme`. `snr_per_bit_range` is the snr per bit range and `krange` is the symbol size of the M-ary signalling where ``M=2^k``. 
+Plots the probability of symbol error versus snr per bit for the signaling `scheme`. `snr_per_bit_range` is the snr per bit range and `krange` is the symbol size of the M-ary signalling where ``M=2^k``. 
 """
 function plotber(;scheme="ASK", snr_per_bit_range=collect(-4 : 1 : 20), krange = 1 : 4, 
     pltkwargs...)

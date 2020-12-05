@@ -14,12 +14,12 @@ nbits = k * nsymbols
 
 # Communcation system components  
 gen = Generator(nbits) 
-modulator = Modulator(ASK(), M)
+modulator = Modulator(ASK(M))
 channel = AWGNChannel(1) 
-detector = MLDetector(signalset(modulator))
+detector = MLDetector(alphabet(modulator))
 
 # Monte Carlo simulation 
-message = mapstream(modulator, gen.bits)  # Message signal 
+message = stream_to_symbols(modulator, gen.bits)  # Message signal 
 symerr = zeros(length(γs))
 for i in 1 : length(symerr)
     channel.snr = γs[i]  # Update channel snr

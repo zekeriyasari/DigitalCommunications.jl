@@ -8,6 +8,7 @@ using QuadGK
 using SpecialFunctions
 using DocStringExtensions
 using LinearAlgebra
+import Base: show 
 
 include("theoretical.jl")
 include("blocks.jl")
