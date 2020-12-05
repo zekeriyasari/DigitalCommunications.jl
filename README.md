@@ -61,7 +61,7 @@ The resulting probability of symbol error versus snr per symbols plot is shown b
         width="75%"/>
 </center>
 
-For more information about how to use `DigitalCommunications`, see its [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zekeriyasari.github.io/DigitalCommunications.jl/stable).
+For more information about how to use `DigitalCommunications`, see its [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://zekeriyasari.github.io/DigitalCommunications.jl/dev)
 
 # Contribution 
 Any form of contribution is welcome. Please feel free to open an [issue](https://github.com/zekeriyasari/DigitalCommunications.jl/issues) for bug reports, feature requests, new ideas and suggestions etc., or to send a pull request for any bug fixes.
