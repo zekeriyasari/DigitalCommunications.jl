@@ -4,6 +4,8 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://zekeriyasari.github.io/DigitalCommunications.jl/dev)
 [![Coverage](https://codecov.io/gh/zekeriyasari/DigitalCommunications.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/zekeriyasari/DigitalCommunications.jl)
 [![Documentation](https://github.com/zekeriyasari/DigitalCommunications.jl/workflows/Documentation/badge.svg)](https://github.com/zekeriyasari/DigitalCommunications.jl/actions?query=workflow%3ADocumentation)
+[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://app.circleci.com/pipelines/github/zekeriyasari/DigitalCommunications.jl)
+
 
 `DigitalCommunications` focusses on the simulation of digital communication systems. In its very early version, `DigitalCommunications` provides    
 1. Monte Carlo simulation of common modulation schemes including PAM, ASK, QAM, PSK, FSK. 
