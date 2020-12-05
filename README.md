@@ -53,14 +53,14 @@ plot!(γb, berqam.(γb, M), marker=:circle, yscale=:log10, label="theoretical")
 plot!(γb, symerr, marker=:circle, yscale=:log10, label="montecarlo")
 ```
 The resulting probability of symbol error versus snr per symbols plot is shown below. 
-```
+
 <center>
     <img src="assets/qam_monte_carlo_sim.svg"
         alt="Closed Loop System"
         style="float: center; margin-right: 10px;"
         width="75%"/>
 </center>
-```
+
 For more information about how to use `DigitalCommunications`, see its [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://zekeriyasari.github.io/DigitalCommunications.jl/stable).
 
 # Contribution 
