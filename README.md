@@ -15,7 +15,7 @@
 5. Gray coding. 
 
 # Installation 
-`DigitalCommunications` has not been registered package yet. To install it, open a julia repl, type
+`DigitalCommunications` has not been registered yet. To install it, open a julia repl, type
 ```
 ] add https://github.com/zekeriyasari/DigitalCommunications.jl
 ```
