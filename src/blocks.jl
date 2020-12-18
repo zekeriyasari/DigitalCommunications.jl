@@ -352,6 +352,8 @@ end
 
 #------------------------- AWGN Vector Channel ------------------------------------
 
+# TODO: #23 Rename snr to esno.
+
 """
     $TYPEDEF
 
