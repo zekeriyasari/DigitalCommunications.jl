@@ -5,7 +5,7 @@ export
     AbstractCoding, GrayCoding, invmap,
     AbstractScheme, ASK, PSK, QAM, FSK, PAM, 
     Modulator, scheme, alphabet, symbolsize, stream_to_symbols, modulate, signalset, constellation,
-    AWGNChannel,
+    AWGNChannel, SNR, EsNo, EbNo,
     AbstractDetector, AbstractCoherentDetector, AbstractNonCoherentDetector, MAPDetector,  MLDetector
 
 #-------------------------  Stream Generator ------------------------------------
@@ -111,22 +111,20 @@ end
 show(io::IO, scheme::T) where T <: AbstractScheme = print(io, "$(scheme.M)-$(T.name)")
 
 function getalphabet(scheme::Type{PAM}, M::Int)
-    [[2m - 1 - M] for m in 1 : M]
-    # collect(2 * (1 : M) .- 1 .- M)
+    [(2m - 1 - M) + 0im for m in 1 : M]
 end 
 function getalphabet(scheme::Type{ASK}, M::Int)
-    [[2m - 1 - M] for m in 1 : M]
-    # collect(2 * (1 : M) .- 1 .- M)
+    [(2m - 1 - M) + 0im for m in 1 : M]
 end 
 function getalphabet(scheme::Type{PSK}, M::Int) 
     map(1 : M) do m 
         θ = 2π / M *  (m - 1)
-        [cos(θ), sin(θ)]
+        cos(θ) + 1im * sin(θ)
     end
 end
 function getalphabet(scheme::Type{QAM}, M::Int)
     M = Int(sqrt(M))
-    vec([[i, j] for i in -(M - 1) : 2 : (M - 1), j in -(M - 1) : 2 : (M - 1)])
+    vec([i + 1im * j for i in -(M - 1) : 2 : (M - 1), j in -(M - 1) : 2 : (M - 1)])
 end
 
 # TODO: Implement `getalphabet` method for FSK 
@@ -352,32 +350,58 @@ end
 
 #------------------------- AWGN Vector Channel ------------------------------------
 
-# TODO: #23 Rename snr to esno.
+abstract type AbstractNoiseMode end
+
+for name in [:SNR, :EsNo, :EbNo]
+    @eval begin
+        """
+            $TYPEDEF
+        """
+        mutable struct $name <: AbstractNoiseMode 
+            "Noise level in units of dB"
+            val::Float64
+        end
+        $name() = $name(1.)
+    end
+end
+
 
 """
     $TYPEDEF
 
-Additive white Gaussian noise channel. `AWGNChannel` is defined by its `snr`. `snr = Eb / No` where `Eb` is the energy per bit and `No/2` is the power spectral density of the channel noise.  
+Additive white Gaussian noise channel. `AWGNChannel` is defined by its `snr`. `snr = Eb / No` where `Eb` is the energy per bit and `No/2` is the power spectral density of the channel noise. The relation between `SNR`, `EsNo` and `EbNo` is,
+```math 
+\\begin{aligned}
+    K * SNR &= EsNo \\
+    EsNo &= k \\times EbNo \\
+\\end{aligned}
+```
 
 # Fields 
 
     $TYPEDFIELDS
 """
-mutable struct AWGNChannel 
-    "Channel SNR(Signal-to-Noise ratio)"
-    snr::Float64 
+mutable struct AWGNChannel{M}
+    "Value of the noise mode(may be `SNR`, `EsNo`, `EbNo` in dB"
+    mode::M
+    "Bits per symbol"
+    k::Int
+    "Samples per symbol"
+    sps::Int
 end 
+AWGNChannel(mode, k=1, sps=1) = AWGNChannel(mode, k, sps)
 
-function (channel::AWGNChannel)(s::AbstractVector{T}) where T <: Union{<:Real, AbstractVector{<:Real}}
-    N = length(s[1])
-    K = length(s)
-    ϵx = sum(norm.(s).^2) / length(s)  # Message signal energy
-    # Note: The input `s` is a scalar (in case of PAM/ASK) or vector(in case of PSK, QAM, FSK) real signal,  
-    # the power spectral density of the noise is `No/2` and channel snr is defined as `snr = Es/No/2`
-    # where `Es` is the energy per symbol.  
-    σ = √(ϵx / dbtosnr(channel.snr) / 2)
-    n = σ * collect(eachrow(randn(K, N)))
-    s + n 
+getsnr(channel::AWGNChannel{SNR}) = dbtoval(channel.model.val)
+getsnr(channel::AWGNChannel{EsNo}) = dbtoval(channel.mode.val) / channel.sps
+getsnr(channel::AWGNChannel{EbNo}) = channel.k * dbtoval(channel.mode.val) / channel.sps  
+
+avgpower(tx) = sum(abs.(tx).^2) / length(tx)
+
+function (channel::AWGNChannel)(tx)
+    l = length(tx) 
+    pn = avgpower(tx) / getsnr(channel) 
+    n = isreal(tx) ? sqrt(pn) * randn(l) : sqrt(pn/2) * (randn(l) + 1im * randn(l))
+    tx + n
 end
 
 
@@ -439,10 +463,10 @@ struct MLDetector{ST, CT<:AbstractCoding} <: AbstractCoherentDetector
 end
 MLDetector(signals) = MLDetector(signals, GrayCoding(Int(log2(length(signals)))))
 
-function (detector::MLDetector)(r)
+function (detector::MLDetector)(rx)
     ss = detector.signals 
-    map(r) do ri 
-        argmax(map(s -> ri ⋅ s, ss) - 1 / 2 * norm.(ss).^2)
+    map(rx) do ri 
+        argmax(map(s -> real(ri ⋅ s), ss) - 1 / 2 * abs.(ss).^2)
     end
     # imap = invmap(detector.coding)
     # map(r) do ri 
