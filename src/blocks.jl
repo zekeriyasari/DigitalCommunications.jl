@@ -400,6 +400,7 @@ avgpower(tx) = sum(abs.(tx).^2) / length(tx)
 function (channel::AWGNChannel)(tx)
     l = length(tx) 
     pn = avgpower(tx) / getsnr(channel) 
+    # Note: If `tx` is complex, then the noise power is distributed among real and complex parts. 
     n = isreal(tx) ? sqrt(pn) * randn(l) : sqrt(pn/2) * (randn(l) + 1im * randn(l))
     tx + n
 end
