@@ -96,39 +96,59 @@ Abstract type for modulation schemes such as PAM, ASK, PSK, FSK, QAM, etc.
 abstract type AbstractScheme end
 
 
-for scheme in [:ASK, :PAM, :PSK, :QAM, :FSK]
-    @eval begin 
-        struct $(scheme){T} <: AbstractScheme 
-            "Scheme symbol size"
-            M::Int
-            "Symbol alphabet"
-            alphabet::T
-        end
-        $(scheme)(M::Int) = $(scheme)(M, getalphabet($scheme, M))
-    end
+# 2-dimensional signaling. 
+struct PAM{T} <: AbstractScheme
+    "Constellation size"
+    M::Int 
+    "Signal Alphabet"
+    alphabet::T
+    function PAM(M)
+        alphabet = [[2m - 1 - M] for m in 1 : M]
+        new{typeof(alphabet)}(M, alphabet)
+    end 
 end
+
+struct ASK{T} <: AbstractScheme
+    "Constellation size"
+    M::Int 
+    "Signal Alphabet"
+    alphabet::T
+    function ASK(M) 
+        alphabet = [[2m - 1 - M] for m in 1 : M]
+        new{typeof(alphabet)}(M, alphabet)
+    end 
+end
+
+struct PSK{T} <: AbstractScheme
+    "Constellation size"
+    M::Int 
+    "Signal Alphabet"
+    alphabet::T
+    function PSK(M)
+        θ = 2π / M * (m - 1)
+        alphabet = [[cos(θ), sin(θ)] for m in 1 : M]
+        new{typeof(alphabet)}(M, alphabet)
+    end 
+end
+
+
+# Multidimensional signalling 
+struct FSK{T} <: AbstractScheme
+    "Constellation size of the scheme"
+    M::Int 
+    "Symbol energy"
+    E::Float64 
+    "Symbol alphabet of the scheme"
+    alphabet::T 
+    function FSK(M, E) 
+        alphabet = map(i -> setindex!(zeros(M), sqrt(E), i), 1 : M) 
+        new{typeof(alphabet)}(M, E, alphabet)
+    end 
+end 
+FSK(M) = FSK(M, 1.)
 
 show(io::IO, scheme::T) where T <: AbstractScheme = print(io, "$(scheme.M)-$(T.name)")
 
-function getalphabet(scheme::Type{PAM}, M::Int)
-    [(2m - 1 - M) + 0im for m in 1 : M]
-end 
-function getalphabet(scheme::Type{ASK}, M::Int)
-    [(2m - 1 - M) + 0im for m in 1 : M]
-end 
-function getalphabet(scheme::Type{PSK}, M::Int) 
-    map(1 : M) do m 
-        θ = 2π / M *  (m - 1)
-        cos(θ) + 1im * sin(θ)
-    end
-end
-function getalphabet(scheme::Type{QAM}, M::Int)
-    M = Int(sqrt(M))
-    vec([i + 1im * j for i in -(M - 1) : 2 : (M - 1), j in -(M - 1) : 2 : (M - 1)])
-end
-
-# TODO: Implement `getalphabet` method for FSK 
-function getalphabet(scheme::Type{FSK}, M::Int) end 
 
 """
     $SIGNATURES
@@ -350,58 +370,34 @@ end
 
 #------------------------- AWGN Vector Channel ------------------------------------
 
-abstract type AbstractNoiseMode end
-
-for name in [:SNR, :EsNo, :EbNo]
-    @eval begin
-        """
-            $TYPEDEF
-        """
-        mutable struct $name <: AbstractNoiseMode 
-            "Noise level in units of dB"
-            val::Float64
-        end
-        $name() = $name(1.)
-    end
-end
-
-
 """
     $TYPEDEF
 
-Additive white Gaussian noise channel. `AWGNChannel` is defined by its `snr`. `snr = Eb / No` where `Eb` is the energy per bit and `No/2` is the power spectral density of the channel noise. The relation between `SNR`, `EsNo` and `EbNo` is,
-```math 
-\\begin{aligned}
-    K * SNR &= EsNo \\
-    EsNo &= k \\times EbNo \\
-\\end{aligned}
-```
+Additive white Gaussian noise channel. 
 
 # Fields 
 
     $TYPEDFIELDS
 """
-mutable struct AWGNChannel{M}
+mutable struct AWGNChannel
     "Value of the noise mode(may be `SNR`, `EsNo`, `EbNo` in dB"
-    mode::M
-    "Bits per symbol"
-    k::Int
-    "Samples per symbol"
-    sps::Int
+    esno::Float64 
 end 
-AWGNChannel(mode, k=1, sps=1) = AWGNChannel(mode, k, sps)
+AWGNChannel() = AWGNChannel(1.) 
 
-getsnr(channel::AWGNChannel{SNR}) = dbtoval(channel.model.val)
-getsnr(channel::AWGNChannel{EsNo}) = dbtoval(channel.mode.val) / channel.sps
-getsnr(channel::AWGNChannel{EbNo}) = channel.k * dbtoval(channel.mode.val) / channel.sps  
-
-avgpower(tx) = sum(abs.(tx).^2) / length(tx)
+energy(s) = sum(s.^2)
 
 function (channel::AWGNChannel)(tx)
-    l = length(tx) 
-    pn = avgpower(tx) / getsnr(channel) 
-    # Note: If `tx` is complex, then the noise power is distributed among real and complex parts. 
-    n = isreal(tx) ? sqrt(pn) * randn(l) : sqrt(pn/2) * (randn(l) + 1im * randn(l))
+    #=
+    Note: The channel is a vector channel. Elements of `tx` are the vectors `sm` that represents 
+    the signal waveform transmitted for the symbol `m`. The channel corrupts the signal by adding 
+    additive white Gaussian noise `n` whose elements `n1, n2, ..., nN` are the projections of the bandpass continous time noise process. The power spectral density of the noise process is assumed to be N0 / 2. Thus, the variances of the random variables with variance N0 / 2.
+    =#
+    K = length(tx)          # Number of symbols transmitted 
+    N = length(tx[1])       # Constellation size of modulation 
+    Es = sum(energy.(tx)) / K     # Average energy per symbol 
+    σ = sqrt(Es / dbtoval(channel.esno) / 2)  # Standard deviation of projections random variables. 
+    n = collect(eachrow(σ * randn(K, N)))
     tx + n
 end
 
@@ -459,16 +455,20 @@ function (detector::MAPDetector)(r) end
 struct MLDetector{ST, CT<:AbstractCoding} <: AbstractCoherentDetector
     "Basis signals of the detector"
     signals::ST
-    "Symbol encoding"
+    "Coding method from bit stream to symbol stream"
     coding::CT
 end
 MLDetector(signals) = MLDetector(signals, GrayCoding(Int(log2(length(signals)))))
 
 function (detector::MLDetector)(rx)
-    ss = detector.signals 
+    Es = 1 / 2 * energy.(detector.signals)
     map(rx) do ri 
-        argmax(map(s -> real(ri ⋅ s), ss) - 1 / 2 * abs.(ss).^2)
+        argmax(map(s -> ri ⋅ s, detector.signals) - Es)
     end
+    #= 
+    Note: The output of the detector is the symbol stream, not the bit stream. 
+    Thus, the code block below is commented. 
+    =#
     # imap = invmap(detector.coding)
     # map(r) do ri 
     #     imap[argmax(map(s -> ri ⋅ s, ss) - 1 / 2 * norm.(ss).^2)]
