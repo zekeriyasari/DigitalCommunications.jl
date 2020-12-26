@@ -107,11 +107,13 @@ Pulse Amplitude Modulation. The mapping rule is
 struct PAM{T} <: AbstractScheme
     "Constellation size"
     M::Int 
+    "Modulating pulse energy"
+    Ep::Float64
     "Signal Alphabet"
     alphabet::T
-    function PAM(M)
-        alphabet = [[2m - 1 - M] for m in 1 : M]
-        new{typeof(alphabet)}(M, alphabet)
+    function PAM(M, Ep=1.)
+        alphabet = [[2m - 1 - M] * sqrt(Ep) for m in 1 : M]
+        new{typeof(alphabet)}(M, Ep, alphabet)
     end 
 end
 
@@ -127,11 +129,13 @@ where ``A_m = 2m - 1 - M``
 struct ASK{T} <: AbstractScheme
     "Constellation size"
     M::Int 
+    "Modulating pulse energy"
+    Eg::Float64
     "Signal Alphabet"
     alphabet::T
-    function ASK(M) 
-        alphabet = [[2m - 1 - M] for m in 1 : M]
-        new{typeof(alphabet)}(M, alphabet)
+    function ASK(M, Eg=1.) 
+        alphabet = [[2m - 1 - M] * sqrt(Eg / 2) for m in 1 : M]
+        new{typeof(alphabet)}(M, Eg, alphabet)
     end 
 end
 
@@ -147,12 +151,15 @@ where ``\\theta_m = \\dfrac{2\\pi(m - 1)}{M}``.
 struct PSK{T} <: AbstractScheme
     "Constellation size"
     M::Int 
+    "Modulating pulse energy"
+    Eg::Float64
     "Signal Alphabet"
     alphabet::T
-    function PSK(M)
+    function PSK(M, Eg=1.)
+        α = sqrt(Eg / 2)
         θ = 2π / M * (m - 1)
-        alphabet = [[cos(θ), sin(θ)] for m in 1 : M]
-        new{typeof(alphabet)}(M, alphabet)
+        alphabet = [[cos(θ) * α, sin(θ) * α] for m in 1 : M]
+        new{typeof(alphabet)}(M, Eg, alphabet)
     end 
 end
 
@@ -171,16 +178,15 @@ where ``w_m = m \\Delta f``
 struct FSK{T} <: AbstractScheme
     "Constellation size of the scheme"
     M::Int 
-    "Symbol energy"
+    "Average symbol energy"
     E::Float64 
     "Symbol alphabet of the scheme"
     alphabet::T 
-    function FSK(M, E) 
+    function FSK(M, E=1.) 
         alphabet = map(i -> setindex!(zeros(M), sqrt(E), i), 1 : M) 
         new{typeof(alphabet)}(M, E, alphabet)
     end 
 end 
-FSK(M) = FSK(M, 1.)
 
 show(io::IO, scheme::T) where T <: AbstractScheme = print(io, "$(scheme.M)-$(T.name)")
 

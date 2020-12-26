@@ -9,12 +9,13 @@ k = 3
 M = 2^k 
 nsymbols = Int(1e6) 
 nbits = k * nsymbols
-ebno = collect(0 : 10)        # Snr per bit 
+Ep = 100.                       # Modulating pulse energy. 
+ebno = collect(0 : 10)          # Snr per bit 
 esno = ebno .+ 10 * log10(k)    # Snr ber symbol  
 
 # Communcation system components  
 gen = Generator(nbits) 
-modulator = Modulator(PAM(M))
+modulator = Modulator(PAM(M, 10.))
 channel = AWGNChannel(1) 
 detector = MLDetector(alphabet(modulator))
 
