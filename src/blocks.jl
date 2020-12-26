@@ -163,6 +163,33 @@ struct PSK{T} <: AbstractScheme
     end 
 end
 
+"""
+    $TYPEDEF
+
+# Fields 
+
+    $TYPEDFIELDS
+
+Quadrature Amplitude Modulation. The mapping rule is 
+```math 
+    s_m = A_{mi} g(t) cos(w_c t) - A_{mi} g(t) sin(w_c t) 
+```
+where the amplitudes ``A_{mi}, A_{mq} \\in \\{ \\pm 1, \\pm 3, \\ldots, \\pm (M - 1) \\}`` 
+"""
+struct QAM{T} <: AbstractScheme
+    "Constellation size"
+    M::Int 
+    "Modulating pulse energy"
+    Eg::Float64
+    "Signal Alphabet"
+    alphabet::T
+    function QAM(M, Eg=1.)
+        α = sqrt(Eg / 2)
+        M = Int(sqrt(M))	
+        alphabet = vec([α*[i, j] for i in -(M - 1) : 2 : (M - 1), j in -(M - 1) : 2 : (M - 1)])
+        new{typeof(alphabet)}(M, Eg, alphabet)
+    end 
+end 
 
 # Multidimensional signalling 
 """
@@ -206,21 +233,6 @@ julia> symbolsize(sch)
 """
 symbolsize(scheme::AbstractScheme) = Int(log2(scheme.M))
 
-
-"""
-    $TYPEDEF
-
-# Fields 
-
-    $TYPEDFIELDS
-
-Quadrature Amplitude Modulation. The mapping rule is 
-```math 
-    s_m = A_{mi} g(t) cos(w_c t) - A_{mi} g(t) sin(w_c t) 
-```
-where the amplitudes ``A_{mi}, A_{mq} \\in \\{ \\pm 1, \\pm 3, \\ldots, \\pm (M - 1) \\}`` 
-"""
-QAM
 
 """
     $TYPEDEF
