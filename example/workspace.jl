@@ -1,34 +1,9 @@
-# This file includes the MonteCarlo simulation of PSK modulation scheme and compares 
-# the numerical results with the theoretical results. 
+# Workspace file ... 
 
-using DigitalCommunications 
-using Plots 
 
-# Simulation parameters 
-k = 2 
-M = 2^k 
-nsymbols = Int(1e6) 
-nbits = k * nsymbols
-ebno = collect(0 : 10)         
-esno = ebno .+ 10 * log10(k)  
-
-# Communcation system components  
-gen = Generator(nbits) 
-modulator = Modulator(PSK(M))
-channel = AWGNChannel() 
-detector = MLDetector(alphabet(modulator))
-
-# Monte Carlo simulation 
-message = stream_to_symbols(modulator, gen.bits)  # Message signal 
-symerr = zeros(length(esno))
-for i in 1 : length(symerr)
-    channel.esno = esno[i]   # Update channel esno
-    mbar = gen.bits |> modulator |> channel |> detector  # Extracted message signal 
-    symerr[i] = sum(mbar .!= message) / length(message)  # Symbol error rate 
-end
-
-# Plots
-plt = plot(title="$M-PSK", xlabel="ebno [dB]", ylabel="Pe") 
-plot!(ebno, berpsk.(esno, M), marker=:circle, yscale=:log10, label="theoretical")
-plot!(ebno, symerr, marker=:circle, yscale=:log10, label="montecarlo")
-display(plt)
+T =  1 
+ts = 0.001 
+t = 0 : ts : T 
+g = 1 .- cos.(2π * t)
+Eg = sum(g.^2) * ts 
+plot(t, g, ylims=(0, 2))

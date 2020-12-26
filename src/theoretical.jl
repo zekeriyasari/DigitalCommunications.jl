@@ -3,6 +3,7 @@
 export 
     Q, dbtoval,
     berask, 
+    berpam,
     berpsk, 
     berfsk, 
     berqam,
@@ -48,6 +49,7 @@ Q(x) = 1 / 2 * erfc(x / sqrt(2))
 Returns the probability of symbol error for the snr per bit `γb` and constallation size `M` for ASK and PAM signalling 
 """
 berask(γb, M) = 2 * (1 - 1 / M) * Q(sqrt(6log2(M) / (M^2 - 1) * dbtoval(γb)))
+berpam = berask
 
 """
     $SIGNATURES
