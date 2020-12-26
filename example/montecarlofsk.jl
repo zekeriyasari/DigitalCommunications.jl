@@ -2,7 +2,7 @@
 # the numerical results with the theoretical results. 
 
 using DigitalCommunications 
-using Plots 
+using Plots; theme(:default)
 
 # Simulation parameters 
 k = 2
@@ -28,6 +28,6 @@ for i in 1 : length(symerr)
 end
 
 # Plots
-plt = plot(title="$M-FSK", xlabel="ebno [dB]", ylabel="Pe") 
+plt = plot(title="$M-FSK", xlabel="esno [dB]", ylabel="Pe") 
 plot!(esno, berfsk.(esno, M), marker=:circle, yscale=:log10, label="theoretical")
 plot!(esno, symerr, marker=:circle, yscale=:log10, label="montecarlo")

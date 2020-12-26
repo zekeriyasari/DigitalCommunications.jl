@@ -97,6 +97,13 @@ abstract type AbstractScheme end
 
 
 # 2-dimensional signaling. 
+"""
+    $TYPEDEF
+Pulse Amplitude Modulation. The mapping rule is 
+```math 
+    s_m = A_m p(t) \\quad m = 1, \\ldots, M
+```
+"""
 struct PAM{T} <: AbstractScheme
     "Constellation size"
     M::Int 
@@ -108,6 +115,15 @@ struct PAM{T} <: AbstractScheme
     end 
 end
 
+"""
+    $TYPEDEF
+
+Amplitude Shift Keying. The mapping rule is 
+```math 
+    s_m = A_m g(t) cos(w_c t)  \\quad m = 1, \\ldots, M
+```
+where ``A_m = 2m - 1 - M`` 
+"""
 struct ASK{T} <: AbstractScheme
     "Constellation size"
     M::Int 
@@ -119,6 +135,15 @@ struct ASK{T} <: AbstractScheme
     end 
 end
 
+"""
+    $TYPEDEF
+
+Phase Shift Keying. The mapping rule is 
+```math 
+    s_m = g(t) cos(w_c t - \\theta_m) \\quad m = 1, \\ldots, M
+```
+where ``\\theta_m = \\dfrac{2\\pi(m - 1)}{M}``.
+"""
 struct PSK{T} <: AbstractScheme
     "Constellation size"
     M::Int 
@@ -133,6 +158,16 @@ end
 
 
 # Multidimensional signalling 
+"""
+    $TYPEDEF
+
+
+Frequency Shift Keying. The mapping rule is 
+```math 
+    s_m = A cos(w_c t + w_m t) \\quad m = 1, \\ldots, M
+```
+where ``w_m = m \\Delta f``
+"""
 struct FSK{T} <: AbstractScheme
     "Constellation size of the scheme"
     M::Int 
@@ -165,50 +200,6 @@ julia> symbolsize(sch)
 """
 symbolsize(scheme::AbstractScheme) = Int(log2(scheme.M))
 
-##### Scheme documentation. 
-
-"""
-    $TYPEDEF
-Pulse Amplitude Modulation. The mapping rule is 
-```math 
-    s_m = A_m p(t) \\quad m = 1, \\ldots, M
-```
-"""
-PAM
-
-"""
-    $TYPEDEF
-
-Amplitude Shift Keying. The mapping rule is 
-```math 
-    s_m = A_m g(t) cos(w_c t)  \\quad m = 1, \\ldots, M
-```
-where ``A_m = 2m - 1 - M`` 
-"""
-ASK
-
-"""
-    $TYPEDEF
-
-Phase Shift Keying. The mapping rule is 
-```math 
-    s_m = g(t) cos(w_c t - \\theta_m) \\quad m = 1, \\ldots, M
-```
-where ``\\theta_m = \\dfrac{2\\pi(m - 1)}{M}``.
-"""
-PSK 
-
-"""
-    $TYPEDEF
-
-
-Frequency Shift Keying. The mapping rule is 
-```math 
-    s_m = A cos(w_c t + w_m t) \\quad m = 1, \\ldots, M
-```
-where ``w_m = m \\Delta f``
-"""
-FSK 
 
 """
     $TYPEDEF
