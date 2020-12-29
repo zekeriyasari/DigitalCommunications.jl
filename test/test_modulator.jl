@@ -11,7 +11,6 @@ modulator = Modulator(PSK(4), 10.)
 modulator = Modulator(ASK(4))
 @test modulator.Ep == 1.
 
-
 # Modulation 
 M = 4
 bits = [0, 0, 1, 1, 0, 1, 1, 0, 0, 1] 

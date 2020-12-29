@@ -9,9 +9,6 @@ abstract type AbstractCoding end
 
 Gray coding. 
 
-!!! note 
-    In Gray coding just a single bit changes between adjacent symbols
-
 # Fields
     $TYPEDFIELDS
 
@@ -35,13 +32,7 @@ end
 
 show(io::IO, coding::GrayCoding) = print(io, "GrayCoding(M:$(length(coding.pairs)))")
 
-"""
-    $SIGNATURES 
-
-Returns symbol size of the coding.
-"""
-constelsize(coding::GrayCoding) = Int(log2(length(coding.pairs)))
-
+# When a GrayCoding object is called, it maps its input bit stream to coressponding symbol stream.
 function (coding::GrayCoding)(stream)
     codewords = collect(Iterators.partition(stream, constelsize(coding)))
     alph = coding.pairs
@@ -49,6 +40,13 @@ function (coding::GrayCoding)(stream)
         alph[codeword]
     end
 end 
+
+"""
+    $SIGNATURES 
+
+Returns constellation size of the coding.
+"""
+constelsize(coding::GrayCoding) = Int(log2(length(coding.pairs)))
 
 """
     $SIGNATURES

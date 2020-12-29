@@ -1,6 +1,13 @@
 # This file includes utilities
 
-export Q, dbtoval, valtodb
+export Q, dbtoval, valtodb, energy 
+
+"""
+    $SIGNATURES
+
+Computes the energy of the discrete time signal `s` sampled with `ts` (defaults to 1) seconds. 
+"""
+energy(s, ts=1.) = sum(s.^2) * ts
 
 """
     $SIGNATURES

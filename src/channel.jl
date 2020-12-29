@@ -31,4 +31,3 @@ function (channel::AWGNChannel)(tx)
     tx + n
 end
 
-energy(s) = sum(s.^2)
