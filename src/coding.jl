@@ -34,7 +34,7 @@ show(io::IO, coding::GrayCoding) = print(io, "GrayCoding(M:$(length(coding.pairs
 
 # When a GrayCoding object is called, it maps its input bit stream to coressponding symbol stream.
 function (coding::GrayCoding)(stream)
-    codewords = collect(Iterators.partition(stream, constelsize(coding)))
+    codewords = collect(Iterators.partition(stream, Int(log2(constelsize(coding)))))
     alph = coding.pairs
     map(codewords) do codeword 
         alph[codeword]
@@ -46,7 +46,7 @@ end
 
 Returns constellation size of the coding.
 """
-constelsize(coding::GrayCoding) = Int(log2(length(coding.pairs)))
+constelsize(coding::GrayCoding) = length(coding.pairs)
 
 """
     $SIGNATURES

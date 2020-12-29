@@ -3,19 +3,19 @@
 @testset "ModulatorTestset" begin
 
 # Fields 
-@test :scheme in fieldnames(BasebandModulator)
-@test :Ep in fieldnames(BasebandModulator)
+@test :scheme in fieldnames(VectorModulator)
+@test :Ep in fieldnames(VectorModulator)
 
 # Construction 
-modulator = BasebandModulator(PSK(4), 10.)
-modulator = BasebandModulator(ASK(4))
+modulator = VectorModulator(PSK(4), 10.)
+modulator = VectorModulator(ASK(4))
 @test modulator.Ep == 1.
 
 # Modulation 
 M = 4
 bits = [0, 0, 1, 1, 0, 1, 1, 0, 0, 1] 
 coding = GrayCoding(M)
-modulator = BasebandModulator(PSK(M))
+modulator = VectorModulator(PSK(M))
 tx = bits |> coding |> modulator
 @test tx[1] ≈ [1, 0] / sqrt(2)
 @test tx[2] ≈ [-1, 0] / sqrt(2)

@@ -1,5 +1,4 @@
-# This file includes the MonteCarlo simulation of ASK modulation scheme and compares 
-# the numerical results with the theoretical results. 
+# This file includes an example script to plot the basis functions of PSK modulator.
 
 using DigitalCommunications 
 using Plots 
@@ -14,12 +13,12 @@ esno = ebno .+ 10 * log10(k)    # Snr ber symbol
 
 # Communcation system components  
 gen = Generator(nbits) 
-modulator = BandpassModulator(PSK(M))
+modulator = WaveformModulator(FSK(M))
 
 # Plot the basis of the modulator 
-t = 0 : modulator.tsample / 100 : modulator.pulse.duration
+t = 0 : modulator.tsample : modulator.pulse.duration
 plt = plot(layout=(constelsize(modulator.scheme),1))
 for (i, base) in enumerate(basis(modulator))
-    plot!(t[1:100], base.(t)[1:100], subplot=i)
+    plot!(t, base.(t), subplot=i)
 end 
 display(plt)

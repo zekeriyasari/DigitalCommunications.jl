@@ -16,8 +16,8 @@ snr = EbNo + 10 * log10(k); % Snr lebe in dB
 % Note: For each SNR, the message signals are corrupted with the channel
 % noise. The snr level of the channel determines the variance of the noise.
 % which, in turn, is determined with respect to the signal power. See the
-% man page of comm.AWGNChannel.
-channel = comm.AWGNChannel('NoiseMethod', 'Signal to noise ratio (SNR)');
+% man page of comm.VectorAWGNChannel.
+channel = comm.VectorAWGNChannel('NoiseMethod', 'Signal to noise ratio (SNR)');
 errorcalc = comm.ErrorRate();
 
 % MONTE CARLO SIMULATION

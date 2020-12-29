@@ -35,8 +35,8 @@ nbits = k * nsymbols
 
 # Communcation system components  
 gen = Generator(nbits) 
-modulator = BasebandModulator(QAM(M))
-channel = AWGNChannel(1) 
+modulator = VectorModulator(QAM(M))
+channel = VectorAWGNChannel(1) 
 detector = MLDetector(alphabet(modulator))
 
 # Monte Carlo simulation 

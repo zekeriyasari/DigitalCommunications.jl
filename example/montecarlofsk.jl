@@ -15,8 +15,8 @@ esno = ebno .+ 10 * log10(k)
 # Communcation system components  
 gen = Generator(nbits) 
 coding = GrayCoding(M)
-modulator = BasebandModulator(FSK(M))
-channel = AWGNChannel() 
+modulator = VectorModulator(FSK(M))
+channel = VectorAWGNChannel() 
 detector = MLDetector(alphabet(modulator))
 
 # Monte Carlo simulation 

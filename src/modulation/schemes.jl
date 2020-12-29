@@ -94,10 +94,10 @@ Returns the symbols size of `scheme`.
 julia> sch = PSK(4);
 
 julia> constelsize(sch)
-2
+4
 ```
 """
-constelsize(scheme::AbstractScheme) = Int(log2(scheme.M))
+constelsize(scheme::AbstractScheme) = scheme.M
 
 # TODO: #27 The argument to `constellation` shoul be `scheme` instead of `modulator`. 
 """

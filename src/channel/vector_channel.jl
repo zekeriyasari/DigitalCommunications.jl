@@ -1,6 +1,8 @@
 # This file includes channel objects. 
 
-export AWGNChannel 
+export VectorAWGNChannel 
+
+abstract type AbstractChannel end
 
 """
     $TYPEDEF
@@ -11,13 +13,13 @@ Additive white Gaussian noise channel.
 
     $TYPEDFIELDS
 """
-mutable struct AWGNChannel
+mutable struct VectorAWGNChannel <: AbstractChannel
     "Value of the noise mode(may be `SNR`, `EsNo`, `EbNo` in dB"
     esno::Float64 
 end 
-AWGNChannel() = AWGNChannel(1.) 
+VectorAWGNChannel() = VectorAWGNChannel(1.) 
 
-function (channel::AWGNChannel)(tx)
+function (channel::VectorAWGNChannel)(tx)
     # Note: The channel is a vector channel. Elements of `tx` are the vectors `sm` that represents the signal waveform
     # transmitted for the symbol `m`. The channel corrupts the signal by adding additive white Gaussian noise `n` whose
     # elements `n1, n2, ..., nN` are the projections of the bandpass continous time noise process. The power spectral
