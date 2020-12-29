@@ -32,11 +32,10 @@ function (detector::MAPDetector)(r) end
 
     $TYPEDFIELDS
 """
-struct MLDetector{ST, CT<:AbstractCoding} <: AbstractCoherentDetector
+struct MLDetector{T} <: AbstractCoherentDetector
     "Basis signals of the detector"
-    signals::ST
+    signals::T
 end
-MLDetector(signals) = MLDetector(signals, GrayCoding(Int(log2(length(signals)))))
 
 function (detector::MLDetector)(rx)
     Es = 1 / 2 * energy.(detector.signals)
