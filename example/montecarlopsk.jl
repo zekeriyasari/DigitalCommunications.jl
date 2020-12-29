@@ -14,7 +14,7 @@ esno = ebno .+ 10 * log10(k)
 
 # Communcation system components  
 gen = Generator(nbits) 
-modulator = Modulator(PSK(M))
+modulator = BasebandModulator(PSK(M))
 channel = AWGNChannel(1) 
 detector = MLDetector(alphabet(modulator))
 

@@ -11,10 +11,10 @@ nbits = nsymbols * k
 # Blocks 
 gen = Generator(nbits) 
 for modulator in [
-        Modulator(PAM(M)), 
-        Modulator(ASK(M)), 
-        Modulator(PSK(M)), 
-        Modulator(QAM(M))
+        BasebandModulator(PAM(M)), 
+        BasebandModulator(ASK(M)), 
+        BasebandModulator(PSK(M)), 
+        BasebandModulator(QAM(M))
     ] 
     tx = gen.bits |> modulator 
     @show(tx)

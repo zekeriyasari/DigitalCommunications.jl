@@ -16,7 +16,7 @@ esno = ebno .+ 10 * log10(k)    # Snr ber symbol
 # Communcation system components  
 gen = Generator(nbits) 
 coding = GrayCoding(M)
-modulator = Modulator(PAM(M))
+modulator = BasebandModulator(PAM(M))
 channel = AWGNChannel(1) 
 detector = MLDetector(alphabet(modulator))
 
