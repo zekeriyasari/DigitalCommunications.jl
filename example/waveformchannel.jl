@@ -12,12 +12,15 @@ k = 2                                   # Bits per symbol
 M = 2^k                                 # Constellation size 
 T = 1.                                  # Symbol duration 
 f = 1 / T                               # Symbols per second 
-Eg = 1                                  # Modulation pulse energy 
 fs = 10                                 # Sampling frequency 
 ts = 1 / fs                             # Sampling period 
 t = 0 : ts : T - ts                     # Time vector for symbol duration 
 l = length(t)                           # Number of samples per symbol
-g(t) = 0 ≤ t ≤ T ? sqrt(Eg / T) : 0     # Modulation pulse 
+# g(t) = 0 ≤ t ≤ T ? sqrt(Eg / T) : 0     # Modulation pulse: rectangular pulse 
+# Eg = 1                                  # Modulation pulse energy: rectangular pulse  
+A = 1                                     # Amplitude for raised cosine pulse 
+g(t) = 0 ≤ t ≤ T ?  A/2 * (1 - cos(2π/T * t)) : 0       # Raised cosine modulation pulse 
+Eg = A^2 * 3 / 8                                        # Energy for raised cosine modulation pulse 
 nsymbols = Int(1e6)                     # Number of symbols 
 
 # Define basis
