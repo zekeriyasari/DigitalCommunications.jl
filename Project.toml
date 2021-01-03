@@ -16,6 +16,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 [compat]
 DocStringExtensions = "0.8"
 DocumenterTools = "0.1"
+PlotlyJS = "0.14"
 Plots = "1.9"
 QuadGK = "2.4"
 Revise = "3.1"
