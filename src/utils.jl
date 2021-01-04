@@ -7,7 +7,7 @@ export Q, dbtoval, valtodb, energy
 
 Computes the energy of the discrete time signal `s` sampled with `ts` (defaults to 1) seconds. 
 """
-energy(s, ts=1.) = sum(s.^2) * ts
+energy(s::AbstractVector, ts=1.) = sum(abs.(s).^2) * ts
 
 """
     $SIGNATURES

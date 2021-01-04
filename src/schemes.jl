@@ -46,7 +46,7 @@ Returns ``[2m - 1 - M], \\; m = 1, \\ldots, M`` where `M` is constellation size 
 """
 function alphabet(scheme::Union{PAM, ASK}) 
     M = scheme.M
-    [[2m - 1 - M] for m in 1 : M]
+    [[2m - 1 - M + 0im] for m in 1 : M]
 end 
 
 """ 
@@ -57,7 +57,7 @@ Returns ``[cos(\\theta_m), sin(\\theta_m)], \\; m = 1, \\ldots, M`` where ``\\th
 """
 function alphabet(scheme::PSK)
     M = scheme.M
-    [[cos(θ), sin(θ)] for θ in 2π * (0 : M - 1) / M] 
+    [[cos(θ) + 1im * sin(θ)] for θ in 2π * (0 : M - 1) / M] 
 end 
 
 """ 
@@ -68,7 +68,7 @@ Returns ``[2m - 1 - M, 2n - 1 - M], \\; m, n = 1, \\ldots, M`` where `M` is the 
 function alphabet(scheme::QAM)
     M = Int(sqrt(scheme.M))
     Mrange = -(M - 1) : 2 : (M - 1)
-    vec([[i, j] for i in Mrange, j in Mrange])
+    vec([[i + 1im * j] for i in Mrange, j in Mrange])
 end 
 
 """ 
@@ -99,7 +99,6 @@ julia> constelsize(sch)
 """
 constelsize(scheme::AbstractScheme) = scheme.M
 
-# TODO: #27 The argument to `constellation` shoul be `scheme` instead of `modulator`. 
 """
     $SIGNATURES 
 

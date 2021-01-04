@@ -12,8 +12,8 @@ ebno = collect(0 : 10)          # Snr per bit
 esno = ebno .+ 10 * log10(k)    # Snr ber symbol  
 
 # Communcation system components  
-gen = Generator(nbits) 
-modulator = WaveformModulator(FSK(M))
+gen = BitGenerator(nbits) 
+modulator = Modulator(FSK(M))
 
 # Plot the basis of the modulator 
 t = 0 : modulator.tsample : modulator.pulse.duration

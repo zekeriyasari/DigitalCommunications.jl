@@ -13,17 +13,17 @@ ebno = collect(0 : 10)
 esno = ebno .+ 10 * log10(k)    
 
 # Communcation system components  
-gen = Generator(nbits) 
-modulator = VectorModulator(PSK(M))
-channel = VectorAWGNChannel(1) 
-detector = MLDetector(alphabet(modulator))
+gen = SymbolGenerator(nsymbols, M) 
+modulator = Modulator(PSK(M))
+channel = AWGNChannel() 
+detector = Detector(modulator(1:M))
 
 # Monte Carlo simulation 
-message = coding(gen.bits)  
+message = gen.symbols  
 symerr = zeros(length(esno))
 for i in 1 : length(symerr)
     channel.esno = esno[i]  # Update channel snr
-    mbar = gen.bits |> coding |> modulator |> channel |> detector  # Extracted message signal 
+    mbar = message |> modulator |> channel |> detector  # Extracted message signal 
     symerr[i] = sum(mbar .!= message) / length(message)  # Symbol error rate 
 end
 

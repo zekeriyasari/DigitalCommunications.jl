@@ -2,32 +2,32 @@
 
 @testset "PulseTestset" begin
     # Fields 
-    for type in [Rectangular, RaisedCosine]
+    for type in [RectangularPulse, RaisedCosinePulse]
         @test :amplitude in fieldnames(type) 
         @test :duration in fieldnames(type) 
     end 
 
     # Defaults
-    pulse = Rectangular() 
+    pulse = RectangularPulse() 
     @test pulse.amplitude ≈ 1. 
     @test pulse.duration  ≈ 1. 
-    pulse = RaisedCosine() 
+    pulse = RaisedCosinePulse() 
     @test pulse.amplitude ≈ 1. 
     @test pulse.duration  ≈ 1. 
 
     # Energy 
-    pulse = Rectangular(2., 4.) 
+    pulse = RectangularPulse(2., 4.) 
     @test energy(pulse) ≈ 16. 
-    pulse = RaisedCosine(2., 4.) 
+    pulse = RaisedCosinePulse(2., 4.) 
     @test energy(pulse) ≈ 4. * 3 / 
     
     # Waveforms 
-    pulse = Rectangular(4., 1.) 
+    pulse = RectangularPulse(4., 1.) 
     @test pulse(-1) ≈ 0.
     @test pulse(2.) ≈ 0.
     @test pulse(1/2) ≈ pulse.amplitude
 
-    pulse = RaisedCosine(4., 1.) 
+    pulse = RaisedCosinePulse(4., 1.) 
     @test pulse(-1.) ≈ 0.
     @test pulse(1/2) ≈ pulse.amplitude / 2 * (1 - cos(2π / pulse.duration * 1/2))
     @test pulse(2.) ≈ 0.

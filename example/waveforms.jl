@@ -12,9 +12,9 @@ ebno = collect(0 : 10)          # Snr per bit
 esno = ebno .+ 10 * log10(k)    # Snr ber symbol  
 
 # Communcation system components  
-gen = Generator(nbits) 
+gen = BitGenerator(nbits) 
 coding = GrayCoding(M)
-modulator = WaveformModulator(PSK(M))
+modulator = Modulator(PSK(M))
 channel = WaveformAWGNChannel(esno[1], basis(modulator), modulator.tsample, modulator.pulse.duration)
 
 # Simulate the system 

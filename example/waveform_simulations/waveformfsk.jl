@@ -9,7 +9,7 @@ using DigitalCommunications
 
 # Settings 
 k = 2                                       # Bits per symbol 
-M = 2^k                                     # Constellation size 
+M = 2^3                                     # Constellation size 
 T = 1.                                      # Symbol duration 
 f = 1 / T                                   # Symbols per second 
 fs = 10                                     # Sampling frequency 
@@ -19,7 +19,7 @@ l = length(t)                               # Number of samples per symbol
 g(t) = 0 ≤ t ≤ T ? sqrt(2 * Eg / T) : 0     # Modulation pulse: rectangular pulse 
 Eg = 1                                      # Modulation pulse energy: rectangular pulse  
 nsymbols = Int(1e6)                         # Number of symbols 
-Δf = 2 / T                                  # 2 times the minimum frequency seperation for orthogonality 
+Δf = 1 / T                                  # 2 times the minimum frequency seperation for orthogonality 
 
 # Define basis
 basis = map(m -> (t -> g(t) * exp(1im * 2π * m * Δf * t)), 1 : M)

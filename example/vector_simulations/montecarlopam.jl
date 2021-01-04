@@ -14,11 +14,11 @@ ebno = collect(0 : 10)          # Snr per bit
 esno = ebno .+ 10 * log10(k)    # Snr ber symbol  
 
 # Communcation system components  
-gen = Generator(nbits) 
+gen = BitGenerator(nbits) 
 coding = GrayCoding(M)
-modulator = VectorModulator(PAM(M))
-channel = VectorAWGNChannel() 
-detector = MLDetector(alphabet(modulator))
+modulator = Modulator(PAM(M))
+channel = AWGNChannel() 
+detector = Detector(alphabet(modulator))
 
 # Monte Carlo simulation 
 message = coding(gen.bits)  # Message signal 

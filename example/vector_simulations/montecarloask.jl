@@ -13,11 +13,10 @@ ebno = collect(0 : 10)
 esno = ebno .+ 10 * log10(k)
 
 # Communcation system components  
-gen = Generator(nbits) 
-coding = GrayCoding(M)
-modulator = VectorModulator(ASK(M))
-channel = VectorAWGNChannel() 
-detector = MLDetector(alphabet(modulator))
+gen = BitGenerator(nsymbols) 
+modulator = Modulator(ASK(M))
+channel = AWGNChannel() 
+detector = Detector(alphabet(modulator))
 
 # Monte Carlo simulation 
 message = coding(gen.bits)

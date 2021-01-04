@@ -13,18 +13,17 @@ ebno = collect(0 : 10)        # Snr per bit
 esno = ebno .+ 10 * log10(k)    # Snr ber symbol  
 
 # Communcation system components  
-gen = Generator(nbits) 
-coding = GrayCoding(M)
-modulator = VectorModulator(QAM(M))
-channel = VectorAWGNChannel(1) 
-detector = MLDetector(alphabet(modulator))
+gen = SymbolGenerator(nsymbols, M)
+modulator = Modulator(QAM(M))
+channel = AWGNChannel() 
+detector = Detector(modulator(1:M))
 
 # Monte Carlo simulation 
-message = coding(gen.bits)  # Message signal 
+message = gen.symbols  # Message signal 
 symerr = zeros(length(esno))
 for i in 1 : length(symerr)
     channel.esno = esno[i]  # Update channel snr
-    mbar = gen.bits |> coding |> modulator |> channel |> detector  # Extracted message signal 
+    mbar = message |> modulator |> channel |> detector  # Extracted message signal 
     symerr[i] = sum(mbar .!= message) / length(message)  # Symbol error rate 
 end
 

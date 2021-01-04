@@ -11,7 +11,7 @@ nbits = nsymbols * k;
 EbNo = -4 : 10;
 snr = EbNo + 10 * log10(k);
 
-channel = comm.VectorAWGNChannel('NoiseMethod', 'Signal to noise ratio (SNR)');
+channel = comm.AWGNChannel('NoiseMethod', 'Signal to noise ratio (SNR)');
 errorcalc = comm.ErrorRate();
 
 msg = randi([0 M - 1], nsymbols, 1);

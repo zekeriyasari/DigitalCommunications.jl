@@ -34,10 +34,10 @@ nbits = k * nsymbols
 γs = γb .+ 10 * log10(k)    # Snr ber symbol  
 
 # Communcation system components  
-gen = Generator(nbits) 
-modulator = VectorModulator(QAM(M))
-channel = VectorAWGNChannel(1) 
-detector = MLDetector(alphabet(modulator))
+gen = BitGenerator(nbits) 
+modulator = Modulator(QAM(M))
+channel = AWGNChannel(1) 
+detector = Detector(alphabet(modulator))
 
 # Monte Carlo simulation 
 message = stream_to_symbols(modulator, gen.bits)  # Message signal 
